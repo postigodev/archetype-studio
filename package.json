@@ -1,0 +1,16 @@
+{
+  "name": "archetype-studio",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.6.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm build && node --test tests/**/*.test.mjs",
+    "typecheck": "pnpm -r typecheck",
+    "dev": "pnpm --filter @archetype-studio/cli build && pnpm --filter @archetype-studio/cli start"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "typescript": "^5.8.3"
+  }
+}

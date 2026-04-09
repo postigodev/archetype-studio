@@ -26,6 +26,114 @@ That split is what keeps the system usable.
 
 ---
 
+## Current status
+
+The repo now includes a working CLI-first v1 foundation.
+
+Implemented today:
+
+* `generate` command with topic-string and JSON-file input support
+* files-only run artifacts under `runs/<run-id>/`
+* schema plus editorial validation for generated content
+* `render` command that exports deterministic placeholder PNG slides and bundle metadata
+* render QA checks with a persisted `qa-report.json`
+* `run` command that composes generation and rendering into one workflow
+
+Current limitation:
+
+* rendering is still a deterministic placeholder renderer, not the final HTML/CSS plus Playwright pipeline yet
+
+---
+
+## Current CLI usage
+
+Install dependencies:
+
+```bash
+corepack pnpm install --no-frozen-lockfile
+```
+
+Build the workspace:
+
+```bash
+corepack pnpm build
+```
+
+Run tests:
+
+```bash
+corepack pnpm test
+```
+
+### Mock generation
+
+Generate from a topic string without calling OpenAI:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js generate "what kind of texter are you" --mock
+```
+
+Generate from a JSON file:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js generate --input examples/generate-request.json --mock
+```
+
+### Live generation
+
+Set your OpenAI key in the shell before running the live path:
+
+```powershell
+$env:OPENAI_API_KEY="your-key-here"
+node --enable-source-maps apps/cli/dist/index.js generate "what kind of texter are you"
+```
+
+### Rendering
+
+Render a previously generated run:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js render --run-id render-smoke
+```
+
+Or render directly from a `post-spec.json` path:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js render --post-spec runs/render-smoke/post-spec.json
+```
+
+### One-step workflow
+
+Run generation and rendering together:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js run "what kind of texter are you" --mock --run-id run-smoke
+```
+
+### Output bundle
+
+Each run writes artifacts like:
+
+```text
+runs/
+  <run-id>/
+    input.json
+    raw-generation.json
+    generation-report.json
+    post-spec.json
+    render-plan.json
+    qa-report.json
+    meta.json
+    caption.txt
+    review.md
+    render/
+      slide-1.png
+      slide-2.png
+      ...
+```
+
+---
+
 ## Core goals
 
 * Produce repeatable multi-slide social posts in a fixed visual format

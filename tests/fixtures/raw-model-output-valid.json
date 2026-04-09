@@ -1,0 +1,38 @@
+{
+  "hook": "What kind of texter are you?",
+  "archetypes": [
+    {
+      "name": "Double Texter",
+      "bullets": [
+        "sends the follow-up before the panic settles",
+        "treats silence like a systems alert",
+        "would rather risk embarrassment than ambiguity"
+      ],
+      "mood": "urgent",
+      "visualKeywords": ["phone", "blue", "spark"]
+    },
+    {
+      "name": "Paragraph Crafter",
+      "bullets": [
+        "writes messages with a beginning, middle, and thesis",
+        "cannot send a one-word reply without irony damage",
+        "turns every update into a miniature essay"
+      ],
+      "mood": "earnest",
+      "visualKeywords": ["notes", "warm", "grid"]
+    },
+    {
+      "name": "Ghost Mode Minimalist",
+      "bullets": [
+        "answers eventually and acts like time is fake",
+        "communicates mostly through timing and implication",
+        "believes brevity is a complete emotional vocabulary"
+      ],
+      "mood": "detached",
+      "visualKeywords": ["shadow", "gray", "quiet"]
+    }
+  ],
+  "caption": "Your texting style has already become lore in at least three group chats.",
+  "cta": "Comment your type",
+  "tags": ["mainstream", "texting", "archetypes"]
+}

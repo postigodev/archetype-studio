@@ -1,0 +1,24 @@
+{
+  "hook": "What kind of texter are you? xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "archetypes": [
+    {
+      "name": "Double Texter",
+      "bullets": [
+        "sends the follow-up before the panic settles",
+        "sends the follow-up before the panic settles",
+        "would rather risk embarrassment than ambiguity"
+      ]
+    },
+    {
+      "name": "double texter",
+      "bullets": [
+        "sends the follow-up before the panic settles",
+        "communicates mostly through timing and implication",
+        "believes brevity is a complete emotional vocabulary"
+      ]
+    }
+  ],
+  "caption": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cta": "This call to action is intentionally much too long for the configured limit",
+  "tags": ["invalid"]
+}
