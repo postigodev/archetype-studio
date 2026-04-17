@@ -33,7 +33,7 @@ export async function runRenderCommand(
   }
 
   const renderPlan = buildRenderPlan(resolved.runId, parseResult.data);
-  const bundle = renderBundle(parseResult.data, renderPlan);
+  const bundle = await renderBundle(parseResult.data, renderPlan);
   const meta =
     options.qaVariant === "invalid"
       ? { ...bundle.meta, slideCount: bundle.meta.slideCount - 1 }

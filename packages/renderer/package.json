@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@archetype-studio/config": "workspace:*",
-    "@archetype-studio/core": "workspace:*"
+    "@archetype-studio/core": "workspace:*",
+    "playwright-core": "^1.52.0"
   }
 }

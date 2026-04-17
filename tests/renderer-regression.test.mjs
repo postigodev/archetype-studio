@@ -24,13 +24,10 @@ test("render bundle produces deterministic PNG-like exports and passes QA", asyn
   assert.ok(postSpecResult.postSpec);
 
   const renderPlan = buildRenderPlan("test-run", postSpecResult.postSpec);
-  const bundle = renderBundle(postSpecResult.postSpec, renderPlan);
+  const bundle = await renderBundle(postSpecResult.postSpec, renderPlan);
   const qaReport = runRenderQa(postSpecResult.postSpec, renderPlan, bundle.meta);
 
   assert.equal(bundle.slides.length, 5);
-  assert.deepEqual(
-    Array.from(bundle.slides[0].bytes.slice(0, 8)),
-    [137, 80, 78, 71, 13, 10, 26, 10]
-  );
+  assert.deepEqual(Array.from(bundle.slides[0].bytes.slice(0, 8)), [137, 80, 78, 71, 13, 10, 26, 10]);
   assert.equal(qaReport.ok, true);
 });
