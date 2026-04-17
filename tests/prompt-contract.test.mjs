@@ -17,4 +17,6 @@ test("generation prompt includes CTA and caption layout limits", () => {
   assert.match(prompt.user, /Max caption characters: 180/);
   assert.match(prompt.user, /Max CTA characters: 48/);
   assert.match(prompt.user, /CTA must be short, direct, and layout-safe/);
+  assert.match(prompt.user, /Choose one coherent namingFrame/);
+  assert.match(prompt.system, /Do not use generic role labels/);
 });

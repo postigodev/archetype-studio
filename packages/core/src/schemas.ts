@@ -22,6 +22,7 @@ export const rawArchetypeSchema = z.object({
 
 export const rawModelOutputSchema = z.object({
   hook: z.string().min(1),
+  namingFrame: z.string().min(1),
   archetypes: z.array(rawArchetypeSchema).min(1),
   caption: z.string().min(1).optional(),
   cta: z.string().min(1).optional(),
@@ -44,6 +45,7 @@ export const postSpecSchema = z.object({
   mode: modeSchema,
   audience: z.string().min(1).optional(),
   hook: z.string().min(1),
+  namingFrame: z.string().min(1),
   archetypes: z.array(archetypeSchema).min(1),
   caption: z.string().min(1).optional(),
   cta: z.string().min(1).optional(),

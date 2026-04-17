@@ -21,6 +21,7 @@ export function createPostSpec(
     mode: request.mode,
     audience: request.audience,
     hook: rawModelOutput.hook,
+    namingFrame: rawModelOutput.namingFrame,
     archetypes: rawModelOutput.archetypes.map((archetype, index) => ({
       id: `${slugify(archetype.name)}-${index + 1}`,
       name: archetype.name,

@@ -248,9 +248,10 @@ export function extractOpenAiOutputText(payload: {
 function buildMockOutput(topic: string) {
   return {
     hook: toHook(topic),
+    namingFrame: "cats",
     archetypes: [
       {
-        name: "Double Texter",
+        name: "Orange Cat",
         bullets: [
           "sends the follow-up before the panic settles",
           "treats silence like a systems alert",
@@ -260,7 +261,7 @@ function buildMockOutput(topic: string) {
         visualKeywords: ["phone", "blue", "spark"]
       },
       {
-        name: "Paragraph Crafter",
+        name: "Siamese Cat",
         bullets: [
           "writes messages with a beginning, middle, and thesis",
           "cannot send a one-word reply without irony damage",
@@ -270,7 +271,7 @@ function buildMockOutput(topic: string) {
         visualKeywords: ["notes", "warm", "grid"]
       },
       {
-        name: "Ghost Mode Minimalist",
+        name: "Black Cat",
         bullets: [
           "answers eventually and acts like time is fake",
           "communicates mostly through timing and implication",
@@ -289,6 +290,7 @@ function buildMockOutput(topic: string) {
 function buildInvalidMockOutput(topic: string) {
   return {
     hook: `${toHook(topic)} ${"x".repeat(90)}`,
+    namingFrame: "generic roles",
     archetypes: [
       {
         name: "Double Texter",

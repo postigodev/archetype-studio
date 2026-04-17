@@ -39,6 +39,14 @@ export function validatePostSpec(
 
   const normalizedNames = new Map<string, string>();
   const bulletOwners = new Map<string, string>();
+  const genericNamePatterns = [
+    /^the\s+(strategist|visionary|activist|leader|rebel|thinker|dreamer|fighter|organizer|outsider|ghoster|overthinker|minimalist|writer|planner|observer)$/i,
+    /^(strategist|visionary|activist|leader|rebel|thinker|dreamer|fighter|organizer|outsider|ghoster|overthinker|minimalist|writer|planner|observer)$/i
+  ];
+
+  if (postSpec.namingFrame.length > 60) {
+    errors.push(`Naming frame exceeds max length (${postSpec.namingFrame.length}/60).`);
+  }
 
   for (const archetype of postSpec.archetypes) {
     const normalizedName = normalizeText(archetype.name);
@@ -46,6 +54,12 @@ export function validatePostSpec(
     if (archetype.name.length > modeConfig.maxArchetypeNameChars) {
       errors.push(
         `Archetype "${archetype.name}" exceeds max name length (${archetype.name.length}/${modeConfig.maxArchetypeNameChars}).`
+      );
+    }
+
+    if (genericNamePatterns.some((pattern) => pattern.test(archetype.name.trim()))) {
+      errors.push(
+        `Archetype "${archetype.name}" is too generic. Use a concrete name inside the naming frame "${postSpec.namingFrame}".`
       );
     }
 

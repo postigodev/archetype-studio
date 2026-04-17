@@ -26,6 +26,7 @@ export interface Archetype {
 
 export interface RawModelOutput {
   hook: string;
+  namingFrame: string;
   archetypes: Array<{
     name: string;
     bullets: string[];
@@ -45,6 +46,7 @@ export interface PostSpec {
   mode: Mode;
   audience?: string;
   hook: string;
+  namingFrame: string;
   archetypes: Archetype[];
   caption?: string;
   cta?: string;
