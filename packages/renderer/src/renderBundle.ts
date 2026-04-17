@@ -1,12 +1,13 @@
 import type { PostSpec, RenderMeta, RenderPlan } from "@archetype-studio/core";
 
 import { buildSlideHtml } from "./html.js";
-import { renderHtmlToPng } from "./playwright.js";
+import { renderHtmlToPng, type RenderDiagnostics } from "./playwright.js";
 
 export interface RenderedSlide {
   index: number;
   fileName: string;
   bytes: Uint8Array;
+  diagnostics: RenderDiagnostics;
 }
 
 export interface RenderBundleResult {
@@ -21,10 +22,8 @@ export async function renderBundle(
   renderPlan: RenderPlan
 ): Promise<RenderBundleResult> {
   const slides = await Promise.all(
-    renderPlan.slides.map(async (slide, index) => ({
-      index: index + 1,
-      fileName: `slide-${index + 1}.png`,
-      bytes: await renderHtmlToPng(
+    renderPlan.slides.map(async (slide, index) => {
+      const rendered = await renderHtmlToPng(
         buildSlideHtml(
           renderPlan.width,
           renderPlan.height,
@@ -33,8 +32,15 @@ export async function renderBundle(
         ),
         renderPlan.width,
         renderPlan.height
-      )
-    }))
+      );
+
+      return {
+        index: index + 1,
+        fileName: `slide-${index + 1}.png`,
+        bytes: rendered.bytes,
+        diagnostics: rendered.diagnostics
+      };
+    })
   );
 
   const meta: RenderMeta = {

@@ -4,11 +4,13 @@ import type {
   RenderPlan,
   RenderQaReport
 } from "@archetype-studio/core";
+import type { RenderDiagnostics } from "./playwright.js";
 
 export function runRenderQa(
   postSpec: PostSpec,
   renderPlan: RenderPlan,
-  meta: RenderMeta
+  meta: RenderMeta,
+  slideDiagnostics: Array<{ index: number; diagnostics: RenderDiagnostics }> = []
 ): RenderQaReport {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -73,6 +75,24 @@ export function runRenderQa(
     errors.push(
       `Archetype slide count (${archetypeSlides.length}) does not match PostSpec archetype count (${postSpec.archetypes.length}).`
     );
+  }
+
+  for (const slide of slideDiagnostics) {
+    if (slide.diagnostics.hasOverflow) {
+      errors.push(
+        `Slide ${slide.index} has DOM overflow or out-of-bounds content.`
+      );
+    }
+
+    if (slide.diagnostics.outOfBoundsElements.length > 0) {
+      errors.push(
+        `Slide ${slide.index} has out-of-bounds elements: ${slide.diagnostics.outOfBoundsElements.join(", ")}.`
+      );
+    }
+
+    if (slide.diagnostics.renderedAssetCount === 0) {
+      warnings.push(`Slide ${slide.index} rendered without decorative assets.`);
+    }
   }
 
   return {

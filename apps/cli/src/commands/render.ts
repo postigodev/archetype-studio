@@ -38,7 +38,15 @@ export async function runRenderCommand(
     options.qaVariant === "invalid"
       ? { ...bundle.meta, slideCount: bundle.meta.slideCount - 1 }
       : bundle.meta;
-  const qaReport = runRenderQa(parseResult.data, renderPlan, meta);
+  const qaReport = runRenderQa(
+    parseResult.data,
+    renderPlan,
+    meta,
+    bundle.slides.map((slide) => ({
+      index: slide.index,
+      diagnostics: slide.diagnostics
+    }))
+  );
 
   await writeJsonFile(runPaths.renderPlanFile, renderPlan);
   await writeTextFile(runPaths.captionFile, bundle.caption);

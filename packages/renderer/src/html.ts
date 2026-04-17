@@ -2,7 +2,7 @@ import {
   getAssetPacksForVisualDirection,
   getVisualDirectionConfig
 } from "@archetype-studio/config";
-import type { RenderPlanSlide } from "@archetype-studio/core";
+import type { AssetConfig, RenderPlanSlide } from "@archetype-studio/core";
 
 export function buildSlideHtml(
   width: number,
@@ -26,11 +26,12 @@ export function buildSlideHtml(
   const slotBadges = slide.imageSlots
     .map((slot) => `<span class="slot">${escapeHtml(slot)}</span>`)
     .join("");
-  const assetElements = assets
+  const selectedAssets = selectAssetsForSlide(assets, slide);
+  const assetElements = selectedAssets
     .slice(0, 4)
     .map(
       (asset, index) =>
-        `<img class="asset asset-${index + 1}" src="${svgToDataUri(asset.svg)}" alt="${escapeHtml(asset.label)}" style="${getAssetPlacement(index)}" />`
+        `<img class="asset asset-${index + 1}" src="${svgToDataUri(asset.svg)}" alt="${escapeHtml(asset.label)}" style="${getAssetPlacement(index, direction.layoutEnergy, slide.kind)}" />`
     )
     .join("");
 
@@ -65,7 +66,7 @@ export function buildSlideHtml(
       }
 
       body {
-        padding: 48px;
+        padding: ${getBodyPadding(direction.layoutEnergy)};
       }
 
       .frame {
@@ -86,6 +87,30 @@ export function buildSlideHtml(
         overflow: hidden;
       }
 
+      .frame[data-direction="messy-phone-collage"] {
+        transform: rotate(-0.2deg);
+        border: 3px solid rgba(91, 192, 235, 0.35);
+        background:
+          linear-gradient(110deg, rgba(244,236,216,0.96), rgba(244,236,216,0.86)),
+          repeating-linear-gradient(-8deg, rgba(16,16,20,0.08), rgba(16,16,20,0.08) 2px, transparent 2px, transparent 18px);
+      }
+
+      .frame[data-direction="academic-margins"] {
+        box-shadow: inset 84px 0 0 rgba(155, 51, 40, 0.08), 0 18px 54px rgba(37, 32, 27, 0.14);
+        border-radius: 8px;
+      }
+
+      .frame[data-direction="terminal-core"] {
+        border: 2px solid rgba(125,255,155,0.42);
+        box-shadow: 0 0 34px rgba(125,255,155,0.16), inset 0 0 44px rgba(125,255,155,0.08);
+      }
+
+      .frame[data-direction="dreamy-music-mag"] {
+        border-radius: 0;
+        border: 10px solid rgba(255,255,255,0.78);
+        box-shadow: 0 32px 90px rgba(43, 36, 51, 0.2);
+      }
+
       .asset {
         position: absolute;
         z-index: 0;
@@ -96,6 +121,11 @@ export function buildSlideHtml(
         filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
         pointer-events: none;
       }
+
+      .asset-1 { width: ${direction.layoutEnergy === "poster" ? 220 : 170}px; height: ${direction.layoutEnergy === "poster" ? 220 : 170}px; }
+      .asset-2 { width: 140px; height: 140px; opacity: 0.78; }
+      .asset-3 { width: 118px; height: 118px; opacity: 0.72; }
+      .asset-4 { width: 96px; height: 96px; opacity: 0.64; }
 
       .eyebrow,
       .title,
@@ -118,6 +148,17 @@ export function buildSlideHtml(
         text-transform: uppercase;
       }
 
+      .frame[data-direction="terminal-core"] .eyebrow {
+        border-radius: 4px;
+        color: var(--bg);
+      }
+
+      .frame[data-direction="academic-margins"] .eyebrow {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(155, 51, 40, 0.35);
+      }
+
       .title {
         margin: 0;
         max-width: 860px;
@@ -127,9 +168,19 @@ export function buildSlideHtml(
         letter-spacing: -0.04em;
       }
 
+      .frame[data-direction="dreamy-music-mag"] .title {
+        text-transform: uppercase;
+        letter-spacing: -0.06em;
+      }
+
+      .frame[data-direction="terminal-core"] .title {
+        letter-spacing: -0.08em;
+        text-shadow: 0 0 18px rgba(125,255,155,0.18);
+      }
+
       .content {
         display: grid;
-        grid-template-columns: ${slide.kind === "archetype" ? "1fr 220px" : "1fr"};
+        grid-template-columns: ${getContentColumns(direction.layoutEnergy, slide.kind)};
         gap: 32px;
         align-items: start;
         min-height: 0;
@@ -178,6 +229,17 @@ export function buildSlideHtml(
         padding: 24px;
       }
 
+      .frame[data-direction="messy-phone-collage"] .art {
+        transform: rotate(3deg);
+      }
+
+      .frame[data-direction="academic-margins"] .art {
+        border-radius: 6px;
+        background:
+          repeating-linear-gradient(0deg, rgba(155,51,40,0.08), rgba(155,51,40,0.08) 1px, transparent 1px, transparent 18px),
+          var(--panel);
+      }
+
       .art::after {
         content: "${escapeCssContent(direction.assetStyle)}";
         color: rgba(255,255,255,0.88);
@@ -219,7 +281,7 @@ export function buildSlideHtml(
     </style>
   </head>
   <body>
-    <main class="frame" data-kind="${escapeHtml(slide.kind)}" data-direction="${escapeHtml(direction.id)}">
+    <main class="frame" data-kind="${escapeHtml(slide.kind)}" data-direction="${escapeHtml(direction.id)}" data-layout="${escapeHtml(direction.layoutEnergy)}">
       ${assetElements}
       <div class="eyebrow">${escapeHtml(direction.label)}</div>
       <h1 class="title">${escapeHtml(slide.title)}</h1>
@@ -276,6 +338,36 @@ function getEnergyClass(style: string): {
   }
 }
 
+function getBodyPadding(style: string): string {
+  switch (style) {
+    case "poster":
+      return "34px";
+    case "dense":
+      return "42px";
+    case "minimal":
+      return "62px";
+    default:
+      return "48px";
+  }
+}
+
+function getContentColumns(style: string, kind: RenderPlanSlide["kind"]): string {
+  if (kind !== "archetype") {
+    return "1fr";
+  }
+
+  switch (style) {
+    case "dense":
+      return "1fr 180px";
+    case "poster":
+      return "1fr 260px";
+    case "minimal":
+      return "1fr";
+    default:
+      return "1fr 220px";
+  }
+}
+
 function getBackgroundTexture(assetStyle: string): string {
   switch (assetStyle) {
     case "ui-fragments":
@@ -322,13 +414,64 @@ function svgToDataUri(svg: string): string {
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 }
 
-function getAssetPlacement(index: number): string {
-  const placements = [
-    "right: 34px; top: 34px; transform: rotate(8deg);",
-    "left: 38px; bottom: 86px; transform: rotate(-10deg) scale(0.9);",
-    "right: 86px; bottom: 38px; transform: rotate(14deg) scale(0.72);",
-    "left: 42%; top: 34px; transform: rotate(-6deg) scale(0.68);"
-  ];
+function selectAssetsForSlide(
+  assets: AssetConfig[],
+  slide: RenderPlanSlide
+): AssetConfig[] {
+  const preferredKinds =
+    slide.kind === "cover"
+      ? ["photo-card", "ui-fragment", "sticker", "texture"]
+      : slide.kind === "cta"
+        ? ["sticker", "symbol", "texture", "ui-fragment"]
+        : ["symbol", "ui-fragment", "sticker", "texture"];
+
+  return [...assets].sort((left, right) => {
+    const leftRank = preferredKinds.indexOf(left.kind);
+    const rightRank = preferredKinds.indexOf(right.kind);
+    return normalizeRank(leftRank) - normalizeRank(rightRank);
+  });
+}
+
+function normalizeRank(rank: number): number {
+  return rank === -1 ? Number.MAX_SAFE_INTEGER : rank;
+}
+
+function getAssetPlacement(
+  index: number,
+  style: string,
+  kind: RenderPlanSlide["kind"]
+): string {
+  const placementSets: Record<string, string[]> = {
+    chaotic: [
+      "right: 20px; top: 22px; transform: rotate(13deg);",
+      "left: 30px; bottom: 74px; transform: rotate(-14deg) scale(0.96);",
+      "right: 90px; bottom: 30px; transform: rotate(19deg) scale(0.78);",
+      "left: 44%; top: 24px; transform: rotate(-9deg) scale(0.72);"
+    ],
+    dense: [
+      "right: 24px; top: 24px; transform: rotate(0deg) scale(0.9);",
+      "right: 34px; bottom: 96px; transform: rotate(0deg) scale(0.82);",
+      "left: 34px; bottom: 34px; transform: rotate(0deg) scale(0.68);",
+      "left: 50%; top: 24px; transform: rotate(0deg) scale(0.58);"
+    ],
+    poster: [
+      "right: -18px; top: -12px; transform: rotate(8deg) scale(1.1);",
+      "left: 32px; bottom: 42px; transform: rotate(-7deg) scale(1.02);",
+      "right: 70px; bottom: 26px; transform: rotate(12deg) scale(0.76);",
+      "left: 46%; top: 30px; transform: rotate(-4deg) scale(0.72);"
+    ],
+    clean: [
+      "right: 34px; top: 34px; transform: rotate(8deg);",
+      "left: 38px; bottom: 86px; transform: rotate(-10deg) scale(0.9);",
+      "right: 86px; bottom: 38px; transform: rotate(14deg) scale(0.72);",
+      "left: 42%; top: 34px; transform: rotate(-6deg) scale(0.68);"
+    ]
+  };
+  const placements = placementSets[style] ?? placementSets.clean;
+
+  if (kind === "cta" && index === 0) {
+    return "right: 44px; bottom: 132px; transform: rotate(6deg) scale(1.05);";
+  }
 
   return placements[index] ?? placements[0];
 }
