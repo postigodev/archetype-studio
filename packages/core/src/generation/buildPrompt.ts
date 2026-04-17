@@ -20,6 +20,10 @@ export function buildPrompt(
       `Max hook characters: ${modeConfig.maxTitleChars}`,
       `Max archetype name characters: ${modeConfig.maxArchetypeNameChars}`,
       `Max bullet characters: ${modeConfig.maxBulletChars}`,
+      `Max caption characters: ${modeConfig.maxCaptionChars}`,
+      `Max CTA characters: ${modeConfig.maxCtaChars}`,
+      "CTA must be short, direct, and layout-safe. Good examples: \"Comment your type\", \"Drop your type\", \"Tag your group chat\".",
+      "Avoid long CTA sentences or extra clauses.",
       'JSON shape: {"hook": string, "archetypes": [{"name": string, "bullets": string[], "mood"?: string, "visualKeywords"?: string[]}], "caption"?: string, "cta"?: string, "tags"?: string[]}'
     ]
       .filter(Boolean)

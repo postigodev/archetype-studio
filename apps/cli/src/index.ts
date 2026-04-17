@@ -44,6 +44,7 @@ function parseGenerateArgs(args: string[]) {
     runId?: string;
     mock?: boolean;
     mockVariant?: "valid" | "invalid";
+    visualDirectionId?: string;
   } = {
     cwd: process.cwd()
   };
@@ -88,6 +89,12 @@ function parseGenerateArgs(args: string[]) {
       }
 
       result.mockVariant = variant;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--visual-direction") {
+      result.visualDirectionId = args[index + 1];
       index += 1;
       continue;
     }
@@ -148,12 +155,12 @@ function parseRenderArgs(args: string[]) {
 
 function printUsage(): void {
   console.log("Usage:");
-  console.log("  archetype-studio generate <topic> [--mode mainstream] [--audience <value>] [--run-id <id>] [--mock] [--mock-variant valid|invalid]");
-  console.log("  archetype-studio generate --input <path> [--run-id <id>] [--mock] [--mock-variant valid|invalid]");
+  console.log("  archetype-studio generate <topic> [--mode mainstream] [--audience <value>] [--visual-direction <id>] [--run-id <id>] [--mock] [--mock-variant valid|invalid]");
+  console.log("  archetype-studio generate --input <path> [--run-id <id>] [--visual-direction <id>] [--mock] [--mock-variant valid|invalid]");
   console.log("  archetype-studio render --run-id <id> [--qa-variant normal|invalid]");
   console.log("  archetype-studio render --post-spec <path> [--qa-variant normal|invalid]");
-  console.log("  archetype-studio run <topic> [--mode mainstream] [--audience <value>] [--run-id <id>] [--mock] [--mock-variant valid|invalid] [--qa-variant normal|invalid]");
-  console.log("  archetype-studio run --input <path> [--run-id <id>] [--mock] [--mock-variant valid|invalid] [--qa-variant normal|invalid]");
+  console.log("  archetype-studio run <topic> [--mode mainstream] [--audience <value>] [--visual-direction <id>] [--run-id <id>] [--mock] [--mock-variant valid|invalid] [--qa-variant normal|invalid]");
+  console.log("  archetype-studio run --input <path> [--run-id <id>] [--visual-direction <id>] [--mock] [--mock-variant valid|invalid] [--qa-variant normal|invalid]");
 }
 
 function parseRunArgs(args: string[]) {
@@ -167,6 +174,7 @@ function parseRunArgs(args: string[]) {
     mock?: boolean;
     mockVariant?: "valid" | "invalid";
     qaVariant?: "normal" | "invalid";
+    visualDirectionId?: string;
   } = {
     cwd: process.cwd()
   };
@@ -223,6 +231,12 @@ function parseRunArgs(args: string[]) {
       }
 
       result.qaVariant = variant;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--visual-direction") {
+      result.visualDirectionId = args[index + 1];
       index += 1;
       continue;
     }

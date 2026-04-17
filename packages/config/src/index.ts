@@ -1,7 +1,21 @@
-import type { Mode, ModeConfig, TemplateConfig, VisualPackConfig } from "@archetype-studio/core";
+import type {
+  GenerationRequest,
+  AssetPackConfig,
+  Mode,
+  ModeConfig,
+  TemplateConfig,
+  VisualDirectionConfig,
+  VisualPackConfig
+} from "@archetype-studio/core";
 
+import { assetPacks } from "./asset-packs/packs.js";
 import { mainstreamModeConfig } from "./modes/mainstream.js";
 import { defaultCarouselTemplate } from "./templates/defaultCarousel.js";
+import {
+  getVisualDirectionConfig,
+  selectVisualDirection
+} from "./visual-directions/selectVisualDirection.js";
+import { visualDirections } from "./visual-directions/directions.js";
 import { starterVisualPack } from "./visual-packs/starterPack.js";
 
 const modeConfigs: Record<Mode, ModeConfig> = {
@@ -50,4 +64,37 @@ export function listTemplateConfigs(): TemplateConfig[] {
 
 export function listVisualPackConfigs(): VisualPackConfig[] {
   return Object.values(visualPackConfigs);
+}
+
+export function resolveVisualDirection(
+  request: GenerationRequest
+): VisualDirectionConfig {
+  return selectVisualDirection(request);
+}
+
+export { getVisualDirectionConfig };
+
+export function listVisualDirectionConfigs(): VisualDirectionConfig[] {
+  return visualDirections;
+}
+
+export function getAssetPackConfig(assetPackId: string): AssetPackConfig {
+  const assetPack = assetPacks.find((pack) => pack.id === assetPackId);
+
+  if (!assetPack) {
+    throw new Error(`Unknown asset pack: ${assetPackId}`);
+  }
+
+  return assetPack;
+}
+
+export function listAssetPackConfigs(): AssetPackConfig[] {
+  return assetPacks;
+}
+
+export function getAssetPacksForVisualDirection(
+  visualDirectionId: string
+): AssetPackConfig[] {
+  const direction = getVisualDirectionConfig(visualDirectionId);
+  return direction.assetPackIds.map(getAssetPackConfig);
 }

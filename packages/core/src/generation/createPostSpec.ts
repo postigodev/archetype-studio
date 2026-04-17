@@ -12,7 +12,8 @@ import { validatePostSpec } from "../validation/validatePostSpec.js";
 export function createPostSpec(
   request: GenerationRequest,
   rawModelOutput: RawModelOutput,
-  modeConfig: ModeConfig
+  modeConfig: ModeConfig,
+  visualDirectionId: string
 ): GeneratePostSpecResult {
   const candidate: PostSpec = {
     id: slugify(request.topic),
@@ -33,7 +34,8 @@ export function createPostSpec(
     cta: rawModelOutput.cta,
     tags: rawModelOutput.tags,
     templateId: request.templateId ?? modeConfig.defaultTemplateId,
-    visualPack: request.visualPack ?? modeConfig.defaultVisualPack
+    visualPack: request.visualPack ?? modeConfig.defaultVisualPack,
+    visualDirectionId
   };
 
   const validation = parseWithSchema(postSpecSchema, candidate);

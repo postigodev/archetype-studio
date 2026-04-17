@@ -1,11 +1,22 @@
+import {
+  getAssetPacksForVisualDirection,
+  getVisualDirectionConfig
+} from "@archetype-studio/config";
 import type { RenderPlanSlide } from "@archetype-studio/core";
 
 export function buildSlideHtml(
   width: number,
   height: number,
-  slide: RenderPlanSlide
+  slide: RenderPlanSlide,
+  visualDirectionId = "soft-sticker-board"
 ): string {
-  const palette = getSlidePalette(slide.kind);
+  const direction = getVisualDirectionConfig(visualDirectionId);
+  const assets = getAssetPacksForVisualDirection(visualDirectionId).flatMap(
+    (pack) => pack.assets
+  );
+  const palette = direction.palette;
+  const typography = getTypography(direction.typographyStyle);
+  const energy = getEnergyClass(direction.layoutEnergy);
   const bodyItems = slide.body
     .map(
       (line) =>
@@ -14,6 +25,13 @@ export function buildSlideHtml(
     .join("");
   const slotBadges = slide.imageSlots
     .map((slot) => `<span class="slot">${escapeHtml(slot)}</span>`)
+    .join("");
+  const assetElements = assets
+    .slice(0, 4)
+    .map(
+      (asset, index) =>
+        `<img class="asset asset-${index + 1}" src="${svgToDataUri(asset.svg)}" alt="${escapeHtml(asset.label)}" style="${getAssetPlacement(index)}" />`
+    )
     .join("");
 
   return `<!doctype html>
@@ -39,8 +57,10 @@ export function buildSlideHtml(
         width: ${width}px;
         height: ${height}px;
         overflow: hidden;
-        font-family: Georgia, "Times New Roman", serif;
-        background: var(--bg);
+        font-family: ${typography.display};
+        background:
+          ${getBackgroundTexture(direction.assetStyle)},
+          var(--bg);
         color: var(--ink);
       }
 
@@ -49,19 +69,40 @@ export function buildSlideHtml(
       }
 
       .frame {
+        position: relative;
         width: 100%;
         height: 100%;
         display: grid;
         grid-template-rows: auto auto 1fr auto;
-        gap: 28px;
+        gap: ${energy.gap}px;
         background:
           radial-gradient(circle at top right, rgba(255,255,255,0.45), transparent 30%),
           linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0)),
           var(--panel);
         border: 2px solid rgba(0, 0, 0, 0.05);
-        border-radius: 32px;
-        padding: 40px 44px 36px;
+        border-radius: ${energy.radius}px;
+        padding: ${energy.padding};
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+      }
+
+      .asset {
+        position: absolute;
+        z-index: 0;
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        opacity: 0.88;
+        filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
+        pointer-events: none;
+      }
+
+      .eyebrow,
+      .title,
+      .content,
+      .footer {
+        position: relative;
+        z-index: 1;
       }
 
       .eyebrow {
@@ -80,7 +121,8 @@ export function buildSlideHtml(
       .title {
         margin: 0;
         max-width: 860px;
-        font-size: ${slide.kind === "cover" ? 74 : slide.kind === "cta" ? 62 : 56}px;
+        font-family: ${typography.display};
+        font-size: ${slide.kind === "cover" ? energy.coverTitle : slide.kind === "cta" ? energy.ctaTitle : energy.slideTitle}px;
         line-height: 0.96;
         letter-spacing: -0.04em;
       }
@@ -119,7 +161,7 @@ export function buildSlideHtml(
 
       .body-copy {
         display: block;
-        font: 500 32px/1.18 Arial, sans-serif;
+        font: 500 ${energy.bodySize}px/1.18 ${typography.body};
         color: var(--muted);
       }
 
@@ -128,6 +170,7 @@ export function buildSlideHtml(
         border-radius: 24px;
         background:
           linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0)),
+          ${getArtTexture(direction.assetStyle)},
           linear-gradient(160deg, var(--accent), rgba(255,255,255,0.1));
         border: 1px solid rgba(0,0,0,0.05);
         display: grid;
@@ -136,7 +179,7 @@ export function buildSlideHtml(
       }
 
       .art::after {
-        content: "${escapeCssContent(slide.kind)}";
+        content: "${escapeCssContent(direction.assetStyle)}";
         color: rgba(255,255,255,0.88);
         font: 700 24px/1 Arial, sans-serif;
         letter-spacing: 0.18em;
@@ -176,8 +219,9 @@ export function buildSlideHtml(
     </style>
   </head>
   <body>
-    <main class="frame" data-kind="${escapeHtml(slide.kind)}">
-      <div class="eyebrow">${escapeHtml(slide.kind)}</div>
+    <main class="frame" data-kind="${escapeHtml(slide.kind)}" data-direction="${escapeHtml(direction.id)}">
+      ${assetElements}
+      <div class="eyebrow">${escapeHtml(direction.label)}</div>
       <h1 class="title">${escapeHtml(slide.title)}</h1>
       <section class="content">
         <ul class="body">${bodyItems}</ul>
@@ -192,32 +236,72 @@ export function buildSlideHtml(
 </html>`;
 }
 
-function getSlidePalette(kind: RenderPlanSlide["kind"]) {
-  switch (kind) {
-    case "cover":
-      return {
-        background: "#f2e7da",
-        panel: "#fffaf3",
-        accent: "#cb5a37",
-        ink: "#241d1a",
-        muted: "#5f5956"
-      };
-    case "archetype":
-      return {
-        background: "#dfeaf2",
-        panel: "#f7fbfd",
-        accent: "#2d76a7",
-        ink: "#1d2832",
-        muted: "#566473"
-      };
-    case "cta":
-      return {
-        background: "#efe4d8",
-        panel: "#fff9f1",
-        accent: "#3a8069",
-        ink: "#233129",
-        muted: "#5f665c"
-      };
+function getTypography(style: string): { display: string; body: string } {
+  switch (style) {
+    case "mono":
+      return { display: '"Courier New", monospace', body: '"Courier New", monospace' };
+    case "grotesk":
+      return { display: 'Arial Black, Arial, sans-serif', body: 'Arial, sans-serif' };
+    case "display":
+      return { display: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif', body: 'Arial, sans-serif' };
+    case "mixed":
+      return { display: 'Georgia, "Times New Roman", serif', body: 'Arial, sans-serif' };
+    case "serif":
+    default:
+      return { display: 'Georgia, "Times New Roman", serif', body: 'Arial, sans-serif' };
+  }
+}
+
+function getEnergyClass(style: string): {
+  gap: number;
+  radius: number;
+  padding: string;
+  coverTitle: number;
+  ctaTitle: number;
+  slideTitle: number;
+  bodySize: number;
+} {
+  switch (style) {
+    case "chaotic":
+      return { gap: 22, radius: 18, padding: "36px 38px 34px", coverTitle: 78, ctaTitle: 66, slideTitle: 58, bodySize: 31 };
+    case "dense":
+      return { gap: 18, radius: 8, padding: "34px 36px 32px", coverTitle: 68, ctaTitle: 58, slideTitle: 52, bodySize: 28 };
+    case "minimal":
+      return { gap: 36, radius: 4, padding: "54px 56px 48px", coverTitle: 70, ctaTitle: 58, slideTitle: 50, bodySize: 30 };
+    case "poster":
+      return { gap: 24, radius: 0, padding: "42px 46px 38px", coverTitle: 86, ctaTitle: 72, slideTitle: 64, bodySize: 32 };
+    case "clean":
+    default:
+      return { gap: 28, radius: 32, padding: "40px 44px 36px", coverTitle: 74, ctaTitle: 62, slideTitle: 56, bodySize: 32 };
+  }
+}
+
+function getBackgroundTexture(assetStyle: string): string {
+  switch (assetStyle) {
+    case "ui-fragments":
+      return "linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)";
+    case "photo-collage":
+      return "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.42), transparent 18%), radial-gradient(circle at 80% 70%, rgba(0,0,0,0.10), transparent 22%)";
+    case "symbols":
+      return "repeating-linear-gradient(0deg, rgba(0,0,0,0.035), rgba(0,0,0,0.035) 1px, transparent 1px, transparent 24px)";
+    case "texture-only":
+      return "radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px)";
+    case "stickers":
+    default:
+      return "radial-gradient(circle at 10% 15%, rgba(255,255,255,0.55), transparent 14%), radial-gradient(circle at 85% 20%, rgba(255,255,255,0.32), transparent 16%)";
+  }
+}
+
+function getArtTexture(assetStyle: string): string {
+  switch (assetStyle) {
+    case "ui-fragments":
+      return "linear-gradient(90deg, rgba(255,255,255,0.26) 12%, transparent 12% 22%, rgba(255,255,255,0.16) 22% 42%, transparent 42%)";
+    case "photo-collage":
+      return "radial-gradient(circle at 40% 35%, rgba(255,255,255,0.48), transparent 24%)";
+    case "symbols":
+      return "repeating-linear-gradient(45deg, rgba(255,255,255,0.18), rgba(255,255,255,0.18) 8px, transparent 8px, transparent 18px)";
+    default:
+      return "radial-gradient(circle at 45% 40%, rgba(255,255,255,0.35), transparent 26%)";
   }
 }
 
@@ -232,4 +316,19 @@ function escapeHtml(value: string): string {
 
 function escapeCssContent(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+}
+
+function svgToDataUri(svg: string): string {
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+}
+
+function getAssetPlacement(index: number): string {
+  const placements = [
+    "right: 34px; top: 34px; transform: rotate(8deg);",
+    "left: 38px; bottom: 86px; transform: rotate(-10deg) scale(0.9);",
+    "right: 86px; bottom: 38px; transform: rotate(14deg) scale(0.72);",
+    "left: 42%; top: 34px; transform: rotate(-6deg) scale(0.68);"
+  ];
+
+  return placements[index] ?? placements[0];
 }

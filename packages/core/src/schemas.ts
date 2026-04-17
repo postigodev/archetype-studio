@@ -7,7 +7,8 @@ export const generationRequestSchema = z.object({
   mode: modeSchema,
   audience: z.string().min(1).optional(),
   templateId: z.string().min(1).optional(),
-  visualPack: z.string().min(1).optional()
+  visualPack: z.string().min(1).optional(),
+  visualDirectionId: z.string().min(1).optional()
 });
 
 export const rawArchetypeSchema = z.object({
@@ -49,7 +50,8 @@ export const postSpecSchema = z.object({
   tags: z.array(z.string().min(1)).optional(),
   riskFlags: z.array(z.string().min(1)).optional(),
   visualPack: z.string().min(1).optional(),
-  templateId: z.string().min(1).optional()
+  templateId: z.string().min(1).optional(),
+  visualDirectionId: z.string().min(1)
 });
 
 export const modeConfigSchema = z.object({
@@ -80,6 +82,7 @@ export const renderPlanSchema = z.object({
   postId: z.string().min(1),
   templateId: z.string().min(1),
   visualPack: z.string().min(1),
+  visualDirectionId: z.string().min(1),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   slides: z.array(renderPlanSlideSchema).min(1)
@@ -90,6 +93,7 @@ export const renderMetaSchema = z.object({
   postId: z.string().min(1),
   templateId: z.string().min(1),
   visualPack: z.string().min(1),
+  visualDirectionId: z.string().min(1),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   slideCount: z.number().int().positive(),

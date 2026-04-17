@@ -14,6 +14,7 @@ export interface RunCommandOptions {
   mock?: boolean;
   mockVariant?: "valid" | "invalid";
   qaVariant?: "normal" | "invalid";
+  visualDirectionId?: string;
 }
 
 export async function runWorkflowCommand(
@@ -29,7 +30,8 @@ export async function runWorkflowCommand(
     audience: options.audience,
     runId,
     mock: options.mock,
-    mockVariant: options.mockVariant
+    mockVariant: options.mockVariant,
+    visualDirectionId: options.visualDirectionId
   });
 
   if (generateExitCode !== 0) {

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { getModeConfig } from "@archetype-studio/config";
+import { getModeConfig, resolveVisualDirection } from "@archetype-studio/config";
 import {
   buildPrompt,
   createPostSpec,
@@ -27,6 +27,7 @@ export interface GenerateCommandOptions {
   runId?: string;
   mock?: boolean;
   mockVariant?: "valid" | "invalid";
+  visualDirectionId?: string;
 }
 
 export async function runGenerateCommand(
@@ -34,6 +35,7 @@ export async function runGenerateCommand(
 ): Promise<number> {
   const request = await loadGenerationRequest(options);
   const modeConfig = getModeConfig(request.mode);
+  const visualDirection = resolveVisualDirection(request);
   const prompt = buildPrompt(request, modeConfig);
   const runId = options.runId ?? createRunId();
   const runPaths = await initializeRunArtifacts(options.cwd, runId);
@@ -81,7 +83,12 @@ export async function runGenerateCommand(
     return 1;
   }
 
-  const generationResult = createPostSpec(request, parsedOutput.data, modeConfig);
+  const generationResult = createPostSpec(
+    request,
+    parsedOutput.data,
+    modeConfig,
+    visualDirection.id
+  );
   await writeJsonFile(runPaths.generationReportFile, generationResult.report);
 
   if (!generationResult.report.ok || !generationResult.postSpec) {
@@ -128,7 +135,8 @@ async function loadGenerationRequest(
   return {
     topic: options.topic,
     mode: options.mode ?? "mainstream",
-    audience: options.audience
+    audience: options.audience,
+    visualDirectionId: options.visualDirectionId
   };
 }
 
@@ -184,16 +192,57 @@ async function generateModelOutput(
   const payload = (await response.json()) as {
     id?: string;
     output_text?: string;
+    output?: Array<{
+      type?: string;
+      content?: Array<{
+        type?: string;
+        text?: string;
+      }>;
+    }>;
   };
+  const outputText = extractOpenAiOutputText(payload);
 
-  if (!payload.output_text) {
-    throw new Error("OpenAI response did not include output_text.");
+  if (!outputText) {
+    throw new Error(
+      `OpenAI response did not include text output. Top-level keys: ${Object.keys(payload).join(", ")}`
+    );
   }
 
   return {
-    rawText: payload.output_text,
+    rawText: outputText,
     responseId: payload.id
   };
+}
+
+export function extractOpenAiOutputText(payload: {
+  output_text?: string;
+  output?: Array<{
+    type?: string;
+    content?: Array<{
+      type?: string;
+      text?: string;
+    }>;
+  }>;
+}): string | undefined {
+  if (typeof payload.output_text === "string" && payload.output_text.length > 0) {
+    return payload.output_text;
+  }
+
+  const outputTextParts =
+    payload.output
+      ?.flatMap((item) => item.content ?? [])
+      .filter(
+        (content): content is { type?: string; text: string } =>
+          content.type === "output_text" && typeof content.text === "string"
+      )
+      .map((content) => content.text)
+      .filter((text) => text.length > 0) ?? [];
+
+  if (outputTextParts.length > 0) {
+    return outputTextParts.join("\n");
+  }
+
+  return undefined;
 }
 
 function buildMockOutput(topic: string) {

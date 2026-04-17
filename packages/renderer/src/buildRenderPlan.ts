@@ -1,9 +1,10 @@
-import { getTemplateConfig, getVisualPackConfig } from "@archetype-studio/config";
+import { getTemplateConfig, getVisualDirectionConfig, getVisualPackConfig } from "@archetype-studio/config";
 import type { PostSpec, RenderPlan, RenderPlanSlide } from "@archetype-studio/core";
 
 export function buildRenderPlan(runId: string, postSpec: PostSpec): RenderPlan {
   const templateId = postSpec.templateId ?? getTemplateDefaults(postSpec).templateId;
   const visualPack = postSpec.visualPack ?? getTemplateDefaults(postSpec).visualPack;
+  const visualDirection = getVisualDirectionConfig(postSpec.visualDirectionId);
   const template = getTemplateConfig(templateId);
   const visualPackConfig = getVisualPackConfig(visualPack);
 
@@ -36,6 +37,7 @@ export function buildRenderPlan(runId: string, postSpec: PostSpec): RenderPlan {
     postId: postSpec.id,
     templateId: template.id,
     visualPack: visualPackConfig.id,
+    visualDirectionId: visualDirection.id,
     width: template.width,
     height: template.height,
     slides

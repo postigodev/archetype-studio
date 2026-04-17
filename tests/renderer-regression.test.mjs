@@ -2,7 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { buildRenderPlan, renderBundle, runRenderQa } from "../packages/renderer/dist/index.js";
+import {
+  buildRenderPlan,
+  buildSlideHtml,
+  renderBundle,
+  runRenderQa
+} from "../packages/renderer/dist/index.js";
 import { getModeConfig } from "../packages/config/dist/index.js";
 import { createPostSpec } from "../packages/core/dist/generation/createPostSpec.js";
 
@@ -17,17 +22,27 @@ test("render bundle produces deterministic PNG-like exports and passes QA", asyn
   const postSpecResult = createPostSpec(
     request,
     rawModelOutput,
-    getModeConfig("mainstream")
+    getModeConfig("mainstream"),
+    "messy-phone-collage"
   );
 
   assert.equal(postSpecResult.report.ok, true);
   assert.ok(postSpecResult.postSpec);
 
   const renderPlan = buildRenderPlan("test-run", postSpecResult.postSpec);
+  const firstSlideHtml = buildSlideHtml(
+    renderPlan.width,
+    renderPlan.height,
+    renderPlan.slides[0],
+    renderPlan.visualDirectionId
+  );
   const bundle = await renderBundle(postSpecResult.postSpec, renderPlan);
   const qaReport = runRenderQa(postSpecResult.postSpec, renderPlan, bundle.meta);
 
   assert.equal(bundle.slides.length, 5);
+  assert.equal(renderPlan.visualDirectionId, "messy-phone-collage");
+  assert.equal(bundle.meta.visualDirectionId, "messy-phone-collage");
+  assert.match(firstSlideHtml, /data:image\/svg\+xml;base64/);
   assert.deepEqual(Array.from(bundle.slides[0].bytes.slice(0, 8)), [137, 80, 78, 71, 13, 10, 26, 10]);
   assert.equal(qaReport.ok, true);
 });

@@ -14,19 +14,30 @@ test("createPostSpec accepts a valid generation payload", async () => {
   const request = await readJson("./fixtures/generation-request.json");
   const rawModelOutput = await readJson("./fixtures/raw-model-output-valid.json");
 
-  const result = createPostSpec(request, rawModelOutput, getModeConfig("mainstream"));
+  const result = createPostSpec(
+    request,
+    rawModelOutput,
+    getModeConfig("mainstream"),
+    "messy-phone-collage"
+  );
 
   assert.equal(result.report.ok, true);
   assert.ok(result.postSpec);
   assert.equal(result.postSpec.archetypes.length, 3);
   assert.equal(result.postSpec.templateId, "default-carousel");
+  assert.equal(result.postSpec.visualDirectionId, "messy-phone-collage");
 });
 
 test("createPostSpec rejects invalid generation payloads with readable errors", async () => {
   const request = await readJson("./fixtures/generation-request.json");
   const rawModelOutput = await readJson("./fixtures/raw-model-output-invalid.json");
 
-  const result = createPostSpec(request, rawModelOutput, getModeConfig("mainstream"));
+  const result = createPostSpec(
+    request,
+    rawModelOutput,
+    getModeConfig("mainstream"),
+    "messy-phone-collage"
+  );
 
   assert.equal(result.report.ok, false);
   assert.match(result.report.errors.join("\n"), /Expected at least 3 archetypes/);

@@ -25,7 +25,12 @@ export async function renderBundle(
       index: index + 1,
       fileName: `slide-${index + 1}.png`,
       bytes: await renderHtmlToPng(
-        buildSlideHtml(renderPlan.width, renderPlan.height, slide),
+        buildSlideHtml(
+          renderPlan.width,
+          renderPlan.height,
+          slide,
+          renderPlan.visualDirectionId
+        ),
         renderPlan.width,
         renderPlan.height
       )
@@ -37,6 +42,7 @@ export async function renderBundle(
     postId: renderPlan.postId,
     templateId: renderPlan.templateId,
     visualPack: renderPlan.visualPack,
+    visualDirectionId: renderPlan.visualDirectionId,
     width: renderPlan.width,
     height: renderPlan.height,
     slideCount: slides.length,

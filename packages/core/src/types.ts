@@ -6,6 +6,7 @@ export interface GenerationRequest {
   audience?: string;
   templateId?: string;
   visualPack?: string;
+  visualDirectionId?: string;
 }
 
 export interface GenerationPrompt {
@@ -51,6 +52,7 @@ export interface PostSpec {
   riskFlags?: string[];
   visualPack?: string;
   templateId?: string;
+  visualDirectionId: string;
 }
 
 export interface RenderPlanSlide {
@@ -66,6 +68,7 @@ export interface RenderPlan {
   postId: string;
   templateId: string;
   visualPack: string;
+  visualDirectionId: string;
   width: number;
   height: number;
   slides: RenderPlanSlide[];
@@ -76,6 +79,7 @@ export interface RenderMeta {
   postId: string;
   templateId: string;
   visualPack: string;
+  visualDirectionId: string;
   width: number;
   height: number;
   slideCount: number;
@@ -116,6 +120,53 @@ export interface VisualPackConfig {
   label: string;
   supportedModes: Mode[];
   assetSlots: string[];
+}
+
+export type TypographyStyle = "serif" | "grotesk" | "display" | "mono" | "mixed";
+
+export type AssetStyle =
+  | "photo-collage"
+  | "stickers"
+  | "illustration"
+  | "ui-fragments"
+  | "symbols"
+  | "texture-only";
+
+export type LayoutEnergy = "clean" | "dense" | "chaotic" | "minimal" | "poster";
+
+export interface VisualDirectionConfig {
+  id: string;
+  label: string;
+  palette: {
+    background: string;
+    panel: string;
+    accent: string;
+    ink: string;
+    muted: string;
+  };
+  typographyStyle: TypographyStyle;
+  assetStyle: AssetStyle;
+  layoutEnergy: LayoutEnergy;
+  moodTags: string[];
+  assetPackIds: string[];
+}
+
+export type AssetKind = "texture" | "sticker" | "symbol" | "ui-fragment" | "photo-card";
+
+export interface AssetConfig {
+  id: string;
+  label: string;
+  kind: AssetKind;
+  path: string;
+  tags: string[];
+  svg: string;
+}
+
+export interface AssetPackConfig {
+  id: string;
+  label: string;
+  style: AssetStyle;
+  assets: AssetConfig[];
 }
 
 export interface GenerationReport {
