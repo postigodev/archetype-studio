@@ -35,13 +35,36 @@ Implemented today:
 * `generate` command with topic-string and JSON-file input support
 * files-only run artifacts under `runs/<run-id>/`
 * schema plus editorial validation for generated content
-* `render` command that exports deterministic placeholder PNG slides and bundle metadata
+* coherent naming frames so outputs use characters, figures, concepts, or symbols instead of generic labels
+* automatic visual direction selection with manual CLI override
+* local SVG asset packs mapped to each visual direction
+* HTML/CSS plus Playwright rendering to PNG slides
 * render QA checks with a persisted `qa-report.json`
 * `run` command that composes generation and rendering into one workflow
 
 Current limitation:
 
-* rendering is still a deterministic placeholder renderer, not the final HTML/CSS plus Playwright pipeline yet
+* v1 is CLI-first; there is no dashboard/editor UI yet
+* all posting remains manual
+* visual quality is usable but still early and should be reviewed per generated bundle
+
+---
+
+## MVP GitHub readiness
+
+This repo is close to a publishable MVP when:
+
+* `corepack pnpm test` passes
+* `git status --short` is clean
+* no secrets or `.env` files are committed
+* `runs/`, `dist/`, and `node_modules/` are ignored
+* the README reflects the current CLI workflow
+
+Recommended demo command:
+
+```bash
+node --enable-source-maps apps/cli/dist/index.js run "what kind of texter are you" --mock --run-id demo-texter
+```
 
 ---
 
@@ -481,7 +504,7 @@ output/
     caption.txt
     slide-1.png
     slide-2.png
-    slide-3.png
+    ...
     review.md
 ```
 
@@ -657,7 +680,7 @@ Goals:
 
 * generate one post from one topic
 * validate JSON
-* render 3 slides
+* render a PNG carousel
 * export PNGs and caption
 
 Deliverables:
@@ -1107,7 +1130,7 @@ Implement a v1 that can:
 * choose one mode
 * generate structured JSON
 * validate it
-* render 3 slides
+* render a PNG carousel
 * export a caption and PNG carousel
 
 If that works reliably, the rest becomes an expansion problem rather than a reinvention problem.

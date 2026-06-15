@@ -3,7 +3,7 @@ import type { ModeConfig } from "@archetype-studio/core";
 export const mainstreamModeConfig: ModeConfig = {
   mode: "mainstream",
   minArchetypes: 3,
-  maxArchetypes: 4,
+  maxArchetypes: 6,
   minBulletsPerArchetype: 3,
   maxBulletsPerArchetype: 4,
   maxTitleChars: 80,

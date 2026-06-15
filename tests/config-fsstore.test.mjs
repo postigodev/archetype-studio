@@ -15,7 +15,7 @@ test("config lookups resolve the v1 defaults", () => {
   const template = getTemplateConfig(modeConfig.defaultTemplateId);
   const visualPack = getVisualPackConfig(modeConfig.defaultVisualPack);
 
-  assert.equal(modeConfig.maxArchetypes, 4);
+  assert.equal(modeConfig.maxArchetypes, 6);
   assert.equal(template.width, 1080);
   assert.equal(visualPack.id, "starter-pack");
 });
